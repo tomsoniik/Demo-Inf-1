@@ -27,11 +27,24 @@ const authMiddleware = (req: express.Request, res: express.Response, next: expre
     }
 };
 
+// Vercel Support
+const isVercel = !!process.env.VERCEL;
+const uploadPath = isVercel ? '/tmp/uploads' : path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
+
+const dataPath = path.join(__dirname, 'data', 'news.json');
+let memoryNews: any[] = [];
+try {
+    if (!fs.existsSync(path.join(__dirname, 'data'))) fs.mkdirSync(path.join(__dirname, 'data'));
+    if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, JSON.stringify([]));
+    memoryNews = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+} catch (e) {
+    console.error('Error loading news:', e);
+}
+
 // Multer setup
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path.join(__dirname, 'uploads');
-        if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
         cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
@@ -39,12 +52,6 @@ const storage = multer.diskStorage({
     }
 });
 const upload = multer({ storage });
-
-const dataPath = path.join(__dirname, 'data', 'news.json');
-if (!fs.existsSync(dataPath)) {
-    if (!fs.existsSync(path.join(__dirname, 'data'))) fs.mkdirSync(path.join(__dirname, 'data'));
-    fs.writeFileSync(dataPath, JSON.stringify([]));
-}
 
 // Pages routes
 app.get('/', (req, res) => {
@@ -77,21 +84,22 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.get('/api/news', (req, res) => {
-    const news = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    res.json(news);
+    res.json(memoryNews);
 });
 
 app.post('/api/news', authMiddleware, (req, res) => {
-    const { title, date, excerpt } = req.body;
-    const news = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    news.unshift({ id: Date.now(), title, date, excerpt });
-    fs.writeFileSync(dataPath, JSON.stringify(news, null, 2));
+    const { title, excerpt } = req.body;
+    const date = new Date().toISOString().split('T')[0];
+    memoryNews.unshift({ id: Date.now(), title, date, excerpt });
+    
+    if (!isVercel) {
+        fs.writeFileSync(dataPath, JSON.stringify(memoryNews, null, 2));
+    }
     res.json({ success: true });
 });
 
 app.get('/api/files', (req, res) => {
-    const uploadPath = path.join(__dirname, 'uploads');
-    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
+    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
     
     const files = fs.readdirSync(uploadPath).map(filename => {
         const stats = fs.statSync(path.join(uploadPath, filename));
@@ -108,7 +116,6 @@ app.get('/api/files', (req, res) => {
 app.post('/api/upload', authMiddleware, upload.single('file'), (req, res) => {
     res.json({ success: true, file: req.file });
 });
-
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
