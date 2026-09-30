@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pl">
+<%- include('partials/head', { title: 'Panel Administratora' }) %>
+<body>
+    <div class="layout-wrapper" style="display: flex; min-height: 100vh;">
+        <%- include('partials/sidebar', { active: 'admin', isAdmin }) %>
+        
+        <main class="content-area" style="flex: 1; padding: 2rem; overflow-y: auto;">
+            <%- include('partials/topbar', { title: 'Panel Zarządzania', isAdmin }) %>
+            
+            <section class="view-section active">
+                <% if (isAdmin) { %>
+                    <div class="admin-panel" id="admin-panel">
+                        <div class="admin-card glassmorphism" style="margin-bottom: 2rem;">
+                            <h2 class="section-title"><i class="gg-add-r"></i> Dodaj News</h2>
+                            <form id="news-form">
+                                <div class="form-group" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <label style="color: var(--text-muted); font-size: 0.9rem;">Tytuł nowości</label>
+                                    <input type="text" id="news-title" required style="background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 0.8rem; border-radius: 6px; color: var(--text-main);">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <label style="color: var(--text-muted); font-size: 0.9rem;">Treść nowości</label>
+                                    <textarea id="news-excerpt" rows="4" required style="background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 0.8rem; border-radius: 6px; color: var(--text-main);"></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary">Dodaj wpis</button>
+                            </form>
+                        </div>
+
+                        <div class="admin-card glassmorphism">
+                            <h2 class="section-title"><i class="gg-software-upload-cloud"></i> Zarządzanie Materiałami (Upload)</h2>
+                            <p style="margin-bottom: 1rem; color: var(--text-muted);">Przejdź do zakładki FTP, przycisk Upload jest dla Ciebie odblokowany.</p>
+                            <a href="/ftp" class="btn-primary" style="text-decoration: none;">Idź do FTP</a>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div id="admin-login-notice" style="text-align: center; margin-top: 5rem;">
+                        <h2>Wymagane logowanie</h2>
+                        <p>Musisz zalogować się jako administrator (admin/admin) by uzyskać dostęp.</p>
+                        <br>
+                        <button class="btn-primary" id="login-modal-btn-2">Zaloguj się</button>
+                    </div>
+                <% } %>
+            </section>
+        </main>
+    </div>
+
+    <% if (!isAdmin) { %>
+        <%- include('partials/modal') %>
+    <% } %>
+
+    <script src="/js/script.js"></script>
+    <script>
+        const btn2 = document.getElementById('login-modal-btn-2');
+        if (btn2) btn2.addEventListener('click', () => document.getElementById('login-modal').classList.add('open'));
+    </script>
+</body>
+</html>

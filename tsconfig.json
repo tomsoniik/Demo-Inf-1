@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ESNext",
+    "strict": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "outDir": "./public/js",
+    "rootDir": "./public/ts",
+    "sourceMap": false
+  },
+  "include": ["public/ts/**/*.ts"]
+}

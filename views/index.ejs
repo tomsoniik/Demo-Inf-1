@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl">
+<%- include('partials/head', { title: 'Aktualności' }) %>
+<body>
+    <div class="layout-wrapper" style="display: flex; min-height: 100vh;">
+        <%- include('partials/sidebar', { active: 'home', isAdmin }) %>
+        
+        <main class="content-area" style="flex: 1; padding: 2rem; overflow-y: auto;">
+            <%- include('partials/topbar', { title: 'Strona Główna', isAdmin }) %>
+            
+            <section class="view-section active">
+                <div class="hero-banner">
+                    <div class="hero-content">
+                        <h1 class="hero-title">Nowoczesny panel zarządzania</h1>
+                        <p class="hero-subtitle">Śledź aktualności, zarządzaj swoimi plikami i materiałami prosto z poziomu przeglądarki.</p>
+                        <a href="/ftp" class="btn-primary btn-large" style="text-decoration: none;">
+                            Przejdź do materiałów <i class="gg-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="news-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 class="section-title" style="margin-bottom: 0;"><i class="gg-file-document"></i> Ostatnie Aktualności</h2>
+                        <div style="background: rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="gg-pulse" style="color: var(--primary);"></i> Na żywo
+                        </div>
+                    </div>
+                    <div class="news-grid" id="news-grid">
+                        <!-- News items loaded via JS -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <% if (!isAdmin) { %>
+        <%- include('partials/modal') %>
+    <% } %>
+
+    <script src="/js/script.js"></script>
+    
+</body>
+</html>

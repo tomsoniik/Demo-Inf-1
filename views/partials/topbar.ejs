@@ -1,0 +1,15 @@
+<header class="topbar glassmorphism" style="display: flex; align-items: center; padding: 1rem 2rem; margin-bottom: 2rem; border-radius: 16px; position: relative; min-height: 72px;">
+    <!-- Centered Title -->
+    <div class="topbar-title" style="flex: 1; text-align: center;">
+        <h2 style="margin: 0;"><%= title %></h2>
+    </div>
+
+    <!-- Actions on the right -->
+    <div class="topbar-actions" style="position: absolute; right: 2rem;">
+        <% if (isAdmin) { %>
+            <button class="btn-primary" id="logout-btn" style="background-color: var(--primary);">
+                <i class="gg-check-o"></i> Admin (Wyloguj)
+            </button>
+        <% } %>
+    </div>
+</header>
