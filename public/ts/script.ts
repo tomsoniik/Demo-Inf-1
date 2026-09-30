@@ -45,6 +45,45 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('admin-login-notice')!.style.display = 'none';
         }
 
+        const loadNewsHistory = async () => {
+            const res = await fetch('/api/news');
+            const newsList = await res.json();
+            const listContainer = document.getElementById('news-history-list');
+            if (listContainer) {
+                if (newsList.length === 0) {
+                    listContainer.innerHTML = '<p style="color: var(--text-muted);">Brak wpisów.</p>';
+                    return;
+                }
+                
+                let html = '';
+                newsList.forEach((news: any) => {
+                    html += `
+                        <div class="news-history-item" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="margin: 0; color: var(--text-main);">${news.title}</h4>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">${news.date}</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn-secondary" onclick="deleteNews(${news.id})" style="padding: 0.4rem 0.8rem; border-color: rgba(239, 68, 68, 0.3); color: #ef4444;"><i class="gg-trash"></i> Usuń</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = html;
+            }
+        };
+
+        (window as any).deleteNews = async (id: number) => {
+            if (confirm('Na pewno usunąć ten news?')) {
+                const res = await fetch(`/api/news/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadNewsHistory();
+                } else {
+                    alert('Błąd usuwania');
+                }
+            }
+        };
+
         const newsForm = document.getElementById('news-form');
         if (newsForm) {
             newsForm.addEventListener('submit', async (e) => {
@@ -57,18 +96,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         title, 
-                        excerpt, 
-                        date: new Date().toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' }) 
+                        excerpt 
                     })
                 });
 
                 if (res.ok) {
                     alert('News dodany!');
                     (newsForm as HTMLFormElement).reset();
+                    loadNewsHistory();
                 } else {
                     alert('Błąd autoryzacji');
                 }
             });
+        }
+        
+        if (isLoggedIn) {
+            loadNewsHistory();
         }
     }
 

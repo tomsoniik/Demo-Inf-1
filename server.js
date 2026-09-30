@@ -80,7 +80,32 @@ app.get('/api/news', (req, res) => {
 app.post('/api/news', authMiddleware, (req, res) => {
     const { title, excerpt } = req.body;
     const date = new Date().toISOString().split('T')[0];
-    memoryNews.unshift({ id: Date.now(), title, date, excerpt });
+    const newNews = { id: Date.now(), title, date, excerpt };
+    memoryNews.unshift(newNews);
+    if (!isVercel) {
+        fs.writeFileSync(dataPath, JSON.stringify(memoryNews, null, 2));
+    }
+    res.json({ success: true, news: newNews });
+});
+app.put('/api/news/:id', authMiddleware, (req, res) => {
+    const id = parseInt(req.params.id);
+    const { title, excerpt } = req.body;
+    const index = memoryNews.findIndex(n => n.id === id);
+    if (index !== -1) {
+        memoryNews[index].title = title;
+        memoryNews[index].excerpt = excerpt;
+        if (!isVercel) {
+            fs.writeFileSync(dataPath, JSON.stringify(memoryNews, null, 2));
+        }
+        res.json({ success: true });
+    }
+    else {
+        res.status(404).json({ error: 'Not found' });
+    }
+});
+app.delete('/api/news/:id', authMiddleware, (req, res) => {
+    const id = parseInt(req.params.id);
+    memoryNews = memoryNews.filter(n => n.id !== id);
     if (!isVercel) {
         fs.writeFileSync(dataPath, JSON.stringify(memoryNews, null, 2));
     }
